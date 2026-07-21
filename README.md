@@ -2,7 +2,7 @@
 
 # 🎨 Auto Tag Graph Colors
 
-**Automatic, intelligent colour groups for the Obsidian Graph View.**
+**Automatic, intelligent color groups for the Obsidian graph view.**
 Zero configuration. Instant results. Beautifully organised.
 
 *A side project by [**Meetzy Corp FZCO**](https://meetzy.ai) — powered & built by the Meetzy team.*
@@ -13,32 +13,32 @@ Zero configuration. Instant results. Beautifully organised.
 
 ## ✨ What it does
 
-Obsidian's built-in **Graph View** lets you assign colour groups to your tags — one at a time, by hand, forever. That's fine for 3 tags. It's unusable for 89.
+Obsidian's built-in **graph view** lets you assign color groups to your tags — one at a time, by hand, forever. That's fine for 3 tags. It's unusable for 89.
 
 **Auto Tag Graph Colors** solves this in one click:
 
 1. Scans every tag in your vault
-2. Assigns each tag a **stable, distinct colour** from the palette of your choice
-3. Paints the Graph View — in real time as you edit notes
+2. Assigns each tag a **stable, distinct color** from the palette of your choice
+3. Paints the graph view — in real time as you edit notes
 4. Keeps everything in sync as tags come and go
 
-Your knowledge graph becomes a colour-coded map of your thinking, automatically.
+Your knowledge graph becomes a color-coded map of your thinking, automatically.
 
 ---
 
 ## 📸 See it in action
 
-### Normal mode — one colour per tag
+### Normal mode — one color per tag
 
 <div align="center">
-  <img src="docs/screenshots/normal.png" alt="Normal mode — each tag gets its own colour" width="900" />
+  <img src="docs/screenshots/normal.png" alt="Normal mode — each tag gets its own color" width="900" />
 </div>
 
-Every tag is assigned a distinct, stable colour from the selected palette. A rainbow map of your entire knowledge base at a glance.
+Every tag is assigned a distinct, stable color from the selected palette. A rainbow map of your entire knowledge base at a glance.
 
 ---
 
-### 🔥 Heat mode — colour by connections
+### 🔥 Heat mode — color by connections
 
 <div align="center">
   <img src="docs/screenshots/heat.png" alt="Heat mode — cold to hot by connection count" width="900" />
@@ -54,40 +54,40 @@ Nodes fade from **cold** (few links) to **hot** (many links) through a smooth **
   <img src="docs/screenshots/monochrome.png" alt="Monochrome mode — variations of one chosen hue" width="900" />
 </div>
 
-Pick a base colour and every note becomes a shade of it. Different tag combinations still get distinct, deterministic variations (lightness · saturation · subtle ±30° hue drift), so nothing looks flat — but everything looks *yours*.
+Pick a base color and every note becomes a shade of it. Different tag combinations still get distinct, deterministic variations (lightness · saturation · subtle ±30° hue drift), so nothing looks flat — but everything looks *yours*.
 
 ---
 
 ## 🎯 Key features
 
-### 🎨 Six colour palettes
+### 🎨 Six color palettes
 `Modern` · `Pastel` · `High Contrast` · `Dark Mode Optimised` · `Colorblind-Friendly (Wong 2011)` · `HSL Generated (golden-angle)`
 
-### 🧠 Three colour modes
+### 🧠 Three color modes
 | Mode | Behaviour |
 |------|-----------|
-| **Primary** | The first tag in the note wins the colour |
+| **Primary** | The first tag in the note wins the color |
 | **Priority** | You define an ordered list; first match wins |
 | **Multi**   | Falls back to Primary (Obsidian graph limitation) |
 
 ### 🌈 Smart Tag Blending
-Each note gets its **own** colour, blended from its full tag set:
-- Base = primary tag colour
+Each note gets its **own** color, blended from its full tag set:
+- Base = primary tag color
 - Subtly shifted toward the average hue of secondary tags
 - Deterministic lightness/saturation variation per unique tag combo
-- Notes sharing identical tag sets get identical colours
+- Notes sharing identical tag sets get identical colors
 
 ### 🎨 Monochrome sub-mode
-Force every note to a variation of a single chosen colour. Different tag combos still get distinct shades — perfect for a clean, cohesive aesthetic (e.g. an all-blue vault).
+Force every note to a variation of a single chosen color. Different tag combos still get distinct shades — perfect for a clean, cohesive aesthetic (e.g. an all-blue vault).
 
 ### 🔥 Heat coloring by connections
 Percentile-ranked, HSL-interpolated, and outlier-resistant. See screenshot above.
 
 ### 🏷️ Legend overlay
-A collapsible legend in every Graph View pane, sorted by tag frequency, with a native colour picker per tag. Fully mode-aware — the swatches show exactly what the graph shows.
+A collapsible legend in every graph view pane, sorted by tag frequency, with a native color picker per tag. Fully mode-aware — the swatches show exactly what the graph shows.
 
 ### 🔒 Locks, priorities, exclusions
-- Lock a colour so it's never auto-regenerated
+- Lock a color so it's never auto-regenerated
 - Prioritise tags for the "Priority" mode
 - Exclude tags that appear everywhere (`#meetzy`, `#daily`, `#template`…)
 
@@ -95,21 +95,20 @@ A collapsible legend in every Graph View pane, sorted by tag frequency, with a n
 Add a tag, remove a tag, rename a note — the graph updates itself. Change a palette in settings, the graph repaints instantly. No "Apply" button anywhere.
 
 ### 🧹 Clean uninstall
-Disable the plugin and every colour group it created is automatically removed. Your manually-added groups are preserved.
+Disable the plugin and every color group it created is automatically removed. Your manually-added groups are preserved.
 
 ---
 
-## ⌨️ Commands & shortcuts
+## ⌨️ Commands
 
-| Shortcut | Command | What it does |
-|---|---|---|
-| `⌘ U` | Open plugin settings | Opens this plugin's settings from anywhere |
-| `⌘ I` | Refresh colours | Rescans the vault and re-applies all colours |
-| *palette* | Regenerate all tag colours | Wipes and regenerates every unlocked colour |
-| *palette* | Toggle tag colour legend | Shows/hides the floating legend |
-| *palette* | Debug: log graph info | Prints internal state to DevTools (support) |
+| Command | What it does |
+|---|---|
+| **Scan vault and apply tag colors** | Rescans the vault and re-applies all colors |
+| **Regenerate all tag colors** | Wipes and regenerates every unlocked color |
+| **Toggle tag color legend** | Shows or hides the floating legend |
+| **Log graph info to console** | Prints internal state to DevTools (for support) |
 
-Remap any shortcut in **Settings → Hotkeys** (search for *"Auto Tag Graph Colors"*).
+All commands are available from the command palette. You can bind any of them to a hotkey in **Settings → Hotkeys** (search for *"Auto Tag Graph Colors"*).
 
 ---
 
@@ -140,10 +139,10 @@ Reload Obsidian → **Community Plugins** → enable *Auto Tag Graph Colors*.
 ## 🚀 Quick start
 
 1. Enable the plugin
-2. Open **Settings → Auto Tag Graph Colors** (or press `⌘ U`)
+2. Open **Settings → Auto Tag Graph Colors**
 3. Pick a **palette** you like
 4. Click **"Scan vault now"** — done ✨
-5. Open the **Graph View** — every tag is coloured
+5. Open the **graph view** — every tag is colored
 
 That's the whole workflow. The rest is fine-tuning.
 
@@ -152,9 +151,9 @@ That's the whole workflow. The rest is fine-tuning.
 ## 🛠️ Troubleshooting
 
 **Nodes stay grey after enabling.**
-Open the Graph View while running "Scan vault now" — the plugin needs a live graph view to inject colours into.
+Open the graph view while running "Scan vault now" — the plugin needs a live graph view to inject colors into.
 
-**A tag colours everything the same.**
+**A tag colors everything the same.**
 That tag is probably present in almost every note. Add it to **Excluded tags** in the settings.
 
 **Heat coloring looks flat.**
@@ -163,7 +162,7 @@ Percentile mode is on by default. If one node is *way* more connected than the r
 **The color picker in the legend closes when I click it.**
 Fixed in v1.0.x — make sure you're on the latest build.
 
-Still stuck? Run **"Debug: log graph info"** from the command palette, open DevTools (`⌘⌥I`), and share the output.
+Still stuck? Run **"Log graph info to console"** from the command palette, open DevTools (`⌘⌥I`), and share the output.
 
 ---
 
