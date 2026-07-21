@@ -593,7 +593,7 @@ var GraphIntegration = class {
    *   base   = primary tag colour (priority list first, else file's first tag)
    *   hue    = shifted 15% toward the average hue of secondary tags
    *   light. = varied ±10% deterministically per tag-combo hash
-   * Notes with identical tag sets end up with identical colours.
+   * Notes with identical tag sets end up with identical colors.
    */
   buildBlendedGroups(fileTags, tagColors, priorityTags) {
     var _a;
@@ -846,7 +846,7 @@ var GraphIntegration = class {
       const picker = item.createEl("input", { cls: "atgc-legend-picker" });
       picker.type = "color";
       picker.value = color;
-      picker.title = `Change colour for ${tag}`;
+      picker.title = `Change color for ${tag}`;
       const stop = (e) => {
         e.stopPropagation();
       };
@@ -926,7 +926,6 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
     containerEl.empty();
     containerEl.addClass("atgc-settings");
     this.renderHeader(containerEl);
-    this.renderCommands(containerEl);
     this.renderGeneral(containerEl);
     this.renderScan(containerEl);
     this.renderColors(containerEl);
@@ -934,71 +933,19 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
     this.renderTagList(containerEl);
     this.renderFooter(containerEl);
   }
-  // ── Header / About ────────────────────────────────────────
+  // ── Header ────────────────────────────────────────────────
   renderHeader(el) {
     const header = el.createDiv({ cls: "atgc-header" });
-    header.createEl("h2", { text: "Auto Tag Graph Colors", cls: "atgc-title" });
     header.createEl("p", {
       cls: "atgc-subtitle",
-      text: "Automatically assign distinct, stable colours to every tag in your vault and paint them onto the Graph View. Zero manual configuration required \u2014 pick a palette, hit scan, and your knowledge graph becomes a colour-coded map of your thinking."
-    });
-    const badge = header.createDiv({ cls: "atgc-badge" });
-    badge.createSpan({ text: "A side project by " });
-    const brand = badge.createEl("a", {
-      text: "Meetzy Corp FZCO",
-      cls: "atgc-brand",
-      href: "https://meetzy.ai"
-    });
-    brand.setAttr("target", "_blank");
-    brand.setAttr("rel", "noopener");
-    badge.createSpan({ text: " \u2014 the AI-native OS for teams that turn marketing into revenue." });
-  }
-  // ── Commands & Hotkeys ────────────────────────────────────
-  renderCommands(el) {
-    el.createEl("h3", { text: "Commands & Shortcuts" });
-    const table = el.createDiv({ cls: "atgc-cmd-table" });
-    const rows = [
-      ["\u2318U", "Open plugin settings", "Opens this settings page anywhere in Obsidian."],
-      ["\u2318I", "Refresh colours (rescan)", "Rescans your vault and reapplies all tag colours to the graph."],
-      ["Command palette", "Regenerate all tag colours", "Wipes and re-generates every unlocked colour from the current palette."],
-      ["Command palette", "Toggle tag colour legend", "Shows or hides the floating tag-colour legend on the Graph View."],
-      ["Command palette", "Debug: log graph info", "Prints internal graph state to the DevTools console (for troubleshooting)."]
-    ];
-    for (const [key, name, desc] of rows) {
-      const row = table.createDiv({ cls: "atgc-cmd-row" });
-      row.createSpan({ cls: "atgc-cmd-key", text: key });
-      const info = row.createDiv({ cls: "atgc-cmd-info" });
-      info.createDiv({ cls: "atgc-cmd-name", text: name });
-      info.createDiv({ cls: "atgc-cmd-desc", text: desc });
-    }
-    el.createEl("p", {
-      cls: "atgc-cmd-note",
-      text: 'You can remap any shortcut in Settings \u2192 Hotkeys (search for "Auto Tag Graph Colors").'
+      text: "Automatically assign distinct, stable colors to every tag in your vault and paint them onto the graph view."
     });
   }
   // ── Footer ────────────────────────────────────────────────
   renderFooter(el) {
     const footer = el.createDiv({ cls: "atgc-footer" });
-    footer.createEl("hr");
-    const card = footer.createDiv({ cls: "atgc-promo-card" });
-    card.createEl("div", { cls: "atgc-promo-eyebrow", text: "Built by Meetzy" });
-    card.createEl("div", {
-      cls: "atgc-promo-title",
-      text: "Turn leads into clients. Powered by AI."
-    });
-    card.createEl("p", {
-      cls: "atgc-promo-desc",
-      text: "Marketing OS \xB7 Sales OS & CRM \xB7 AI Content Studio \xB7 Workflow Automation \xB7 John, your autonomous AI sales employee. One clear flow from first touch to closed deal. Save up to 92% vs. traditional stacks. From \u20AC29/month."
-    });
-    const cta = card.createEl("a", {
-      text: "Discover Meetzy \u2192",
-      cls: "atgc-promo-cta",
-      href: "https://meetzy.ai"
-    });
-    cta.setAttr("target", "_blank");
-    cta.setAttr("rel", "noopener");
     const line = footer.createEl("p", { cls: "atgc-footer-line" });
-    line.createSpan({ text: "Auto Tag Graph Colors \xB7 A side project by " });
+    line.createSpan({ text: "A side project by " });
     const brand = line.createEl("a", {
       text: "Meetzy Corp FZCO",
       cls: "atgc-brand",
@@ -1006,12 +953,12 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
     });
     brand.setAttr("target", "_blank");
     brand.setAttr("rel", "noopener");
-    line.createSpan({ text: " \xB7 Made with \u2764\uFE0F in Dubai." });
+    line.createSpan({ text: "." });
   }
   // ── General ───────────────────────────────────────────────
   renderGeneral(el) {
-    el.createEl("h3", { text: "General" });
-    new import_obsidian2.Setting(el).setName("Enable plugin").setDesc("Toggle automatic tag coloring on or off. Turning it off removes every colour group this plugin created from the Graph View.").addToggle((t) => t.setValue(this.plugin.settings.enabled).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("General").setHeading();
+    new import_obsidian2.Setting(el).setName("Enable plugin").setDesc("Toggle automatic tag coloring on or off. Turning it off removes every color group this plugin created from the graph view.").addToggle((t) => t.setValue(this.plugin.settings.enabled).onChange(async (val) => {
       var _a;
       this.plugin.settings.enabled = val;
       await this.plugin.saveSettings();
@@ -1024,37 +971,37 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
         this.plugin.graphIntegration.removeAllLegends();
       }
     }));
-    new import_obsidian2.Setting(el).setName("Auto-refresh").setDesc("Re-scan and re-apply colours automatically when tags change.").addToggle((t) => t.setValue(this.plugin.settings.autoRefresh).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Auto-refresh").setDesc("Re-scan and re-apply colors automatically when tags change.").addToggle((t) => t.setValue(this.plugin.settings.autoRefresh).onChange(async (val) => {
       this.plugin.settings.autoRefresh = val;
       await this.plugin.saveSettings();
     }));
   }
   // ── Scan actions ──────────────────────────────────────────
   renderScan(el) {
-    el.createEl("h3", { text: "Tag Scanning" });
-    new import_obsidian2.Setting(el).setName("Scan vault now").setDesc("Immediately scan all notes and apply colours to the Graph View.").addButton((b) => b.setButtonText("Scan vault now").setCta().onClick(async () => {
+    new import_obsidian2.Setting(el).setName("Tag scanning").setHeading();
+    new import_obsidian2.Setting(el).setName("Scan vault now").setDesc("Immediately scan all notes and apply colors to the graph view.").addButton((b) => b.setButtonText("Scan vault now").setCta().onClick(async () => {
       await this.plugin.fullScanAndApply();
-      new import_obsidian2.Notice("ATGC: Vault scanned and colours applied.");
+      new import_obsidian2.Notice("ATGC: Vault scanned and colors applied.");
       this.display();
     }));
-    new import_obsidian2.Setting(el).setName("Regenerate all colours").setDesc("Re-generate colours for all unlocked tags (locked colours are preserved).").addButton((b) => b.setButtonText("Regenerate all colours").onClick(async () => {
+    new import_obsidian2.Setting(el).setName("Regenerate all colors").setDesc("Re-generate colors for all unlocked tags (locked colors are preserved).").addButton((b) => b.setButtonText("Regenerate all colors").onClick(async () => {
       await this.plugin.regenerateAllColors();
       this.display();
     }));
-    new import_obsidian2.Setting(el).setName("Reset all colours").setDesc("Delete every saved colour and start from scratch.").addButton((b) => b.setButtonText("Reset all colours").setWarning().onClick(async () => {
+    new import_obsidian2.Setting(el).setName("Reset all colors").setDesc("Delete every saved color and start from scratch.").addButton((b) => b.setButtonText("Reset all colors").setWarning().onClick(async () => {
       this.plugin.settings.tagColors = {};
       this.plugin.settings.lockedColors = {};
       await this.plugin.saveSettings();
       await this.plugin.fullScanAndApply();
-      new import_obsidian2.Notice("ATGC: All colours reset.");
+      new import_obsidian2.Notice("ATGC: All colors reset.");
       this.display();
     }));
-    new import_obsidian2.Setting(el).setName("Ignore single-use tags").setDesc("Do not assign a colour to tags that appear in only one note.").addToggle((t) => t.setValue(this.plugin.settings.ignoreSingleUseTags).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Ignore single-use tags").setDesc("Do not assign a color to tags that appear in only one note.").addToggle((t) => t.setValue(this.plugin.settings.ignoreSingleUseTags).onChange(async (val) => {
       this.plugin.settings.ignoreSingleUseTags = val;
       await this.plugin.saveSettings();
       await this.plugin.fullScanAndApply();
     }));
-    new import_obsidian2.Setting(el).setName("Excluded tags").setDesc("Comma-separated tags to never colour, e.g. #daily, #template").addText((t) => t.setPlaceholder("#daily, #template, #archived").setValue(this.plugin.settings.excludedTags.join(", ")).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Excluded tags").setDesc("Comma-separated tags to never color, e.g. #daily, #template").addText((t) => t.setPlaceholder("#daily, #template, #archived").setValue(this.plugin.settings.excludedTags.join(", ")).onChange(async (val) => {
       this.plugin.settings.excludedTags = val.split(",").map((s) => s.trim().toLowerCase()).filter((s) => s.length > 0).map((s) => s.startsWith("#") ? s : `#${s}`);
       await this.plugin.saveSettings();
       this.scheduleRescan();
@@ -1062,15 +1009,15 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
   }
   // ── Colour generation settings ────────────────────────────
   renderColors(el) {
-    el.createEl("h3", { text: "Colour Generation" });
-    new import_obsidian2.Setting(el).setName("Colour palette").setDesc("Choose the source palette for tag colour assignment.").addDropdown((d) => d.addOption("modern", "Modern").addOption("pastel", "Pastel").addOption("high-contrast", "High Contrast").addOption("dark-optimized", "Dark Mode Optimised").addOption("colorblind", "Colorblind-Friendly (Wong 2011)").addOption("hsl", "HSL Generated (golden-angle)").setValue(this.plugin.settings.palette).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Color generation").setHeading();
+    new import_obsidian2.Setting(el).setName("Color palette").setDesc("Choose the source palette for tag color assignment.").addDropdown((d) => d.addOption("modern", "Modern").addOption("pastel", "Pastel").addOption("high-contrast", "High Contrast").addOption("dark-optimized", "Dark Mode Optimised").addOption("colorblind", "Colorblind-Friendly (Wong 2011)").addOption("hsl", "HSL Generated (golden-angle)").setValue(this.plugin.settings.palette).onChange(async (val) => {
       this.plugin.settings.palette = val;
       await this.plugin.saveSettings();
       await this.plugin.regenerateAllColors();
       this.display();
     }));
     if (this.plugin.settings.palette === "hsl") {
-      new import_obsidian2.Setting(el).setName("Saturation").setDesc("Colour saturation for the HSL palette (0 = grey, 100 = vivid).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.saturation).setDynamicTooltip().onChange(async (val) => {
+      new import_obsidian2.Setting(el).setName("Saturation").setDesc("Color saturation for the HSL palette (0 = grey, 100 = vivid).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.saturation).setDynamicTooltip().onChange(async (val) => {
         this.plugin.settings.saturation = val;
         await this.plugin.saveSettings();
         if (this.applyTimer)
@@ -1079,7 +1026,7 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
           void this.plugin.regenerateAllColors();
         }, 200);
       }));
-      new import_obsidian2.Setting(el).setName("Lightness").setDesc("Colour lightness for the HSL palette (0 = black, 100 = white).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.lightness).setDynamicTooltip().onChange(async (val) => {
+      new import_obsidian2.Setting(el).setName("Lightness").setDesc("Color lightness for the HSL palette (0 = black, 100 = white).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.lightness).setDynamicTooltip().onChange(async (val) => {
         this.plugin.settings.lightness = val;
         await this.plugin.saveSettings();
         if (this.applyTimer)
@@ -1089,14 +1036,14 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
         }, 200);
       }));
     }
-    new import_obsidian2.Setting(el).setName("Colour mode").setDesc("Determines which tag wins when a note has multiple tags.").addDropdown((d) => d.addOption("primary", "Primary tag \u2014 first tag in the note wins").addOption("priority", "Priority tag \u2014 user-defined priority order").addOption("multi", "Multi-tag \u2014 falls back to primary (Graph View limitation)").setValue(this.plugin.settings.colorMode).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Color mode").setDesc("Determines which tag wins when a note has multiple tags.").addDropdown((d) => d.addOption("primary", "Primary tag \u2014 first tag in the note wins").addOption("priority", "Priority tag \u2014 user-defined priority order").addOption("multi", "Multi-tag \u2014 falls back to primary (graph view limitation)").setValue(this.plugin.settings.colorMode).onChange(async (val) => {
       this.plugin.settings.colorMode = val;
       await this.plugin.saveSettings();
       await this.plugin.applyCurrentColors();
       this.display();
     }));
     if (this.plugin.settings.colorMode === "priority") {
-      new import_obsidian2.Setting(el).setName("Priority tag order").setDesc("Comma-separated tags, highest priority first.  The colour of the first matching tag is used.").addTextArea((ta) => {
+      new import_obsidian2.Setting(el).setName("Priority tag order").setDesc("Comma-separated tags, highest priority first.  The color of the first matching tag is used.").addTextArea((ta) => {
         ta.setPlaceholder("#project, #client, #meeting").setValue(this.plugin.settings.priorityTags.join(", "));
         ta.inputEl.rows = 3;
         ta.onChange(async (val) => {
@@ -1106,29 +1053,29 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
         });
       });
     }
-    new import_obsidian2.Setting(el).setName("Subtag mode").setDesc("How to colour hierarchical tags like #project/alpha.").addDropdown((d) => d.addOption("separate", "Separate \u2014 each subtag gets its own colour").addOption("inherit", "Parent inheritance \u2014 subtags inherit parent colour with lightness variation").setValue(this.plugin.settings.subtagMode).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Subtag mode").setDesc("How to color hierarchical tags like #project/alpha.").addDropdown((d) => d.addOption("separate", "Separate \u2014 each subtag gets its own color").addOption("inherit", "Parent inheritance \u2014 subtags inherit parent color with lightness variation").setValue(this.plugin.settings.subtagMode).onChange(async (val) => {
       this.plugin.settings.subtagMode = val;
       await this.plugin.saveSettings();
       await this.plugin.regenerateAllColors();
     }));
-    el.createEl("h3", { text: "Smart Tag Blending" });
-    new import_obsidian2.Setting(el).setName("Enable smart blending").setDesc("Each note gets its own colour blended from all its tags: primary tag colour, subtly shifted toward secondary tags, with fine lightness variation per unique tag combo. Notes with identical tag sets get identical colours.").addToggle((t) => t.setValue(this.plugin.settings.blendTagsEnabled).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Smart tag blending").setHeading();
+    new import_obsidian2.Setting(el).setName("Enable smart blending").setDesc("Each note gets its own color blended from all its tags: primary tag color, subtly shifted toward secondary tags, with fine lightness variation per unique tag combo. Notes with identical tag sets get identical colors.").addToggle((t) => t.setValue(this.plugin.settings.blendTagsEnabled).onChange(async (val) => {
       this.plugin.settings.blendTagsEnabled = val;
       await this.plugin.saveSettings();
       await this.plugin.applyCurrentColors();
       this.display();
     }));
     if (this.plugin.settings.blendTagsEnabled) {
-      new import_obsidian2.Setting(el).setName("Monochrome mode").setDesc("Force every note to a shade of a single chosen colour. Different tag combos still get distinct lightness/saturation variations, but the hue stays fixed.").addToggle((t) => t.setValue(this.plugin.settings.blendMonochromeEnabled).onChange(async (val) => {
+      new import_obsidian2.Setting(el).setName("Monochrome mode").setDesc("Force every note to a shade of a single chosen color. Different tag combos still get distinct lightness/saturation variations, but the hue stays fixed.").addToggle((t) => t.setValue(this.plugin.settings.blendMonochromeEnabled).onChange(async (val) => {
         this.plugin.settings.blendMonochromeEnabled = val;
         await this.plugin.saveSettings();
         await this.plugin.applyCurrentColors();
       }));
-      new import_obsidian2.Setting(el).setName("Monochrome base colour").setDesc("Base hue used when monochrome mode is on.").then((s) => {
+      new import_obsidian2.Setting(el).setName("Monochrome base color").setDesc("Base hue used when monochrome mode is on.").then((s) => {
         const input = s.controlEl.createEl("input");
         input.type = "color";
         input.value = this.plugin.settings.blendMonochromeHue;
-        input.style.cssText = "width:40px;height:28px;padding:0;border:1px solid var(--background-modifier-border);border-radius:4px;cursor:pointer;";
+        input.addClass("atgc-color-swatch");
         input.addEventListener("input", async () => {
           this.plugin.settings.blendMonochromeHue = input.value;
           await this.plugin.saveSettings();
@@ -1138,7 +1085,7 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
         });
       });
     }
-    el.createEl("h3", { text: "Heat Coloring by Connections" });
+    new import_obsidian2.Setting(el).setName("Heat coloring by connections").setHeading();
     new import_obsidian2.Setting(el).setName("Enable heat coloring").setDesc("Color nodes from cold (few links) to hot (many links). Heat colors are placed first in the graph groups, so they override tag colors.").addToggle((t) => t.setValue(this.plugin.settings.heatColoringEnabled).onChange(async (val) => {
       this.plugin.settings.heatColoringEnabled = val;
       await this.plugin.saveSettings();
@@ -1146,22 +1093,22 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
       this.display();
     }));
     if (this.plugin.settings.heatColoringEnabled) {
-      new import_obsidian2.Setting(el).setName("Cold colour").setDesc("Colour for nodes with the fewest connections.").then((s) => {
+      new import_obsidian2.Setting(el).setName("Cold color").setDesc("Color for nodes with the fewest connections.").then((s) => {
         const input = s.controlEl.createEl("input");
         input.type = "color";
         input.value = this.plugin.settings.heatColdColor;
-        input.style.cssText = "width:40px;height:28px;padding:0;border:1px solid var(--background-modifier-border);border-radius:4px;cursor:pointer;";
+        input.addClass("atgc-color-swatch");
         input.addEventListener("input", async () => {
           this.plugin.settings.heatColdColor = input.value;
           await this.plugin.saveSettings();
           await this.plugin.applyCurrentColors();
         });
       });
-      new import_obsidian2.Setting(el).setName("Hot colour").setDesc("Colour for nodes with the most connections.").then((s) => {
+      new import_obsidian2.Setting(el).setName("Hot color").setDesc("Color for nodes with the most connections.").then((s) => {
         const input = s.controlEl.createEl("input");
         input.type = "color";
         input.value = this.plugin.settings.heatHotColor;
-        input.style.cssText = "width:40px;height:28px;padding:0;border:1px solid var(--background-modifier-border);border-radius:4px;cursor:pointer;";
+        input.addClass("atgc-color-swatch");
         input.addEventListener("input", async () => {
           this.plugin.settings.heatHotColor = input.value;
           await this.plugin.saveSettings();
@@ -1172,8 +1119,8 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
   }
   // ── Display ───────────────────────────────────────────────
   renderDisplay(el) {
-    el.createEl("h3", { text: "Display" });
-    new import_obsidian2.Setting(el).setName("Show legend in Graph View").setDesc("Overlay a colour legend on every Graph View pane.").addToggle((t) => t.setValue(this.plugin.settings.showLegend).onChange(async (val) => {
+    new import_obsidian2.Setting(el).setName("Display").setHeading();
+    new import_obsidian2.Setting(el).setName("Show legend in graph view").setDesc("Overlay a color legend on every graph view pane.").addToggle((t) => t.setValue(this.plugin.settings.showLegend).onChange(async (val) => {
       this.plugin.settings.showLegend = val;
       await this.plugin.saveSettings();
       this.plugin.updateLegends();
@@ -1186,7 +1133,7 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
   }
   // ── Per-tag colour list ───────────────────────────────────
   renderTagList(el) {
-    el.createEl("h3", { text: "Tag Colours" });
+    new import_obsidian2.Setting(el).setName("Tag colors").setHeading();
     const lastScan = this.plugin.settings.lastScanTime;
     if (lastScan > 0) {
       el.createEl("p", {
@@ -1264,7 +1211,7 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
       });
       const resetBtn = row.createEl("button", { cls: "atgc-reset-btn" });
       resetBtn.textContent = "\u21BA";
-      resetBtn.title = "Reset this tag\u2019s colour";
+      resetBtn.title = "Reset this tag\u2019s color";
       resetBtn.addEventListener("click", async () => {
         delete this.plugin.settings.tagColors[tag];
         delete this.plugin.settings.lockedColors[tag];
@@ -1294,43 +1241,30 @@ var AutoTagGraphColorsPlugin = class extends import_obsidian3.Plugin {
     this.addSettingTab(new AutoTagGraphSettingTab(this.app, this));
     this.addCommand({
       id: "atgc-scan-vault",
-      name: "Scan vault and apply tag colours",
-      hotkeys: [{ modifiers: ["Mod"], key: "i" }],
+      name: "Scan vault and apply tag colors",
       callback: () => {
         void this.fullScanAndApply();
       }
     });
     this.addCommand({
       id: "atgc-regenerate-colors",
-      name: "Regenerate all tag colours",
+      name: "Regenerate all tag colors",
       callback: () => {
         void this.regenerateAllColors();
       }
     });
     this.addCommand({
       id: "atgc-toggle-legend",
-      name: "Toggle tag colour legend",
+      name: "Toggle tag color legend",
       callback: () => {
         void this.toggleLegend();
       }
     });
     this.addCommand({
       id: "atgc-debug-info",
-      name: "Debug: log graph info to console (open DevTools first)",
+      name: "Log graph info to console",
       callback: () => {
         this.graphIntegration.logDebugInfo();
-      }
-    });
-    this.addCommand({
-      id: "atgc-open-settings",
-      name: "Open Auto Tag Graph Colors settings",
-      hotkeys: [{ modifiers: ["Mod"], key: "u" }],
-      callback: () => {
-        const setting = this.app.setting;
-        if ((setting == null ? void 0 : setting.open) && (setting == null ? void 0 : setting.openTabById)) {
-          setting.open();
-          setting.openTabById(this.manifest.id);
-        }
       }
     });
     this.app.workspace.onLayoutReady(() => void this.initialize());
@@ -1464,7 +1398,7 @@ var AutoTagGraphColorsPlugin = class extends import_obsidian3.Plugin {
     }
     await this.saveSettings();
     await this.fullScanAndApply();
-    new import_obsidian3.Notice("ATGC: Colours regenerated.");
+    new import_obsidian3.Notice("Auto Tag Graph Colors: colors regenerated.");
   }
   async toggleLegend() {
     this.settings.legendVisible = !this.settings.legendVisible;

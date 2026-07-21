@@ -308,7 +308,7 @@ export class GraphIntegration {
      *   base   = primary tag colour (priority list first, else file's first tag)
      *   hue    = shifted 15% toward the average hue of secondary tags
      *   light. = varied ±10% deterministically per tag-combo hash
-     * Notes with identical tag sets end up with identical colours.
+     * Notes with identical tag sets end up with identical colors.
      */
     private buildBlendedGroups(
         fileTags:     Map<string, string[]>,
@@ -318,7 +318,7 @@ export class GraphIntegration {
         const priKeys = priorityTags.map(t => this.normaliseKey(t));
         const groups: GraphColorGroup[] = [];
 
-        // Monochrome sub-mode: force base hue from a fixed colour.
+        // Monochrome sub-mode: force base hue from a fixed color.
         const mono = this.settings.blendMonochromeEnabled;
         const [mr, mg, mb] = hexToRgbTuple(this.settings.blendMonochromeHue);
         const [monoH, monoS] = rgbToHsl(mr, mg, mb);
@@ -616,7 +616,7 @@ export class GraphIntegration {
         for (const entry of sorted) {
             const { tag } = entry;
             let { color } = entry;
-            // Reflect the actual on-graph colour (blend / monochrome aware).
+            // Reflect the actual on-graph color (blend / monochrome aware).
             color = this.getDisplayColorForTag(tag, color);
             entry.color = color;
             const item  = body.createDiv({ cls: 'atgc-legend-item' });
@@ -628,8 +628,8 @@ export class GraphIntegration {
             const picker = item.createEl('input', { cls: 'atgc-legend-picker' }) as HTMLInputElement;
             picker.type  = 'color';
             picker.value = color;
-            picker.title = `Change colour for ${tag}`;
-            // Prevent the native colour dialog's focus/click events from bubbling
+            picker.title = `Change color for ${tag}`;
+            // Prevent the native color dialog's focus/click events from bubbling
             // up and closing the legend panel.
             const stop = (e: Event): void => { e.stopPropagation(); };
             ['click', 'mousedown', 'pointerdown', 'focus'].forEach(evt =>

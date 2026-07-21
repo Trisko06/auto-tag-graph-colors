@@ -35,41 +35,26 @@ export default class AutoTagGraphColorsPlugin extends Plugin {
         // ── Commands ─────────────────────────────────────────
         this.addCommand({
             id:       'atgc-scan-vault',
-            name:     'Scan vault and apply tag colours',
-            hotkeys:  [{ modifiers: ['Mod'], key: 'i' }],
+            name:     'Scan vault and apply tag colors',
             callback: () => { void this.fullScanAndApply(); },
         });
 
         this.addCommand({
             id:       'atgc-regenerate-colors',
-            name:     'Regenerate all tag colours',
+            name:     'Regenerate all tag colors',
             callback: () => { void this.regenerateAllColors(); },
         });
 
         this.addCommand({
             id:       'atgc-toggle-legend',
-            name:     'Toggle tag colour legend',
+            name:     'Toggle tag color legend',
             callback: () => { void this.toggleLegend(); },
         });
 
         this.addCommand({
             id:       'atgc-debug-info',
-            name:     'Debug: log graph info to console (open DevTools first)',
+            name:     'Log graph info to console',
             callback: () => { this.graphIntegration.logDebugInfo(); },
-        });
-
-        this.addCommand({
-            id:       'atgc-open-settings',
-            name:     'Open Auto Tag Graph Colors settings',
-            hotkeys:  [{ modifiers: ['Mod'], key: 'u' }],
-            callback: () => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const setting = (this.app as any).setting;
-                if (setting?.open && setting?.openTabById) {
-                    setting.open();
-                    setting.openTabById(this.manifest.id);
-                }
-            },
         });
 
         // Wait for workspace + cache to be ready before doing anything
@@ -241,7 +226,7 @@ export default class AutoTagGraphColorsPlugin extends Plugin {
         }
         await this.saveSettings();
         await this.fullScanAndApply();
-        new Notice('ATGC: Colours regenerated.');
+        new Notice('Auto Tag Graph Colors: colors regenerated.');
     }
 
     async toggleLegend(): Promise<void> {

@@ -262,6 +262,16 @@
     flex-shrink: 0;
 }
 
+.atgc-color-swatch {
+    width: 40px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    background: none;
+}
+
 .atgc-lock-btn,
 .atgc-reset-btn {
     background: none;

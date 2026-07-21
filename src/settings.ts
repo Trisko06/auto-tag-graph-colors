@@ -33,7 +33,6 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         containerEl.addClass('atgc-settings');
 
         this.renderHeader(containerEl);
-        this.renderCommands(containerEl);
         this.renderGeneral(containerEl);
         this.renderScan(containerEl);
         this.renderColors(containerEl);
@@ -42,52 +41,13 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         this.renderFooter(containerEl);
     }
 
-    // ── Header / About ────────────────────────────────────────
+    // ── Header ────────────────────────────────────────────────
 
     private renderHeader(el: HTMLElement): void {
         const header = el.createDiv({ cls: 'atgc-header' });
-        header.createEl('h2', { text: 'Auto Tag Graph Colors', cls: 'atgc-title' });
         header.createEl('p', {
             cls:  'atgc-subtitle',
-            text: 'Automatically assign distinct, stable colours to every tag in your vault and paint them onto the Graph View. Zero manual configuration required — pick a palette, hit scan, and your knowledge graph becomes a colour-coded map of your thinking.',
-        });
-        const badge = header.createDiv({ cls: 'atgc-badge' });
-        badge.createSpan({ text: 'A side project by ' });
-        const brand = badge.createEl('a', {
-            text: 'Meetzy Corp FZCO',
-            cls:  'atgc-brand',
-            href: 'https://meetzy.ai',
-        });
-        brand.setAttr('target',   '_blank');
-        brand.setAttr('rel',      'noopener');
-        badge.createSpan({ text: ' — the AI-native OS for teams that turn marketing into revenue.' });
-    }
-
-    // ── Commands & Hotkeys ────────────────────────────────────
-
-    private renderCommands(el: HTMLElement): void {
-        el.createEl('h3', { text: 'Commands & Shortcuts' });
-        const table = el.createDiv({ cls: 'atgc-cmd-table' });
-
-        const rows: Array<[string, string, string]> = [
-            ['⌘U',              'Open plugin settings',      'Opens this settings page anywhere in Obsidian.'],
-            ['⌘I',              'Refresh colours (rescan)',  'Rescans your vault and reapplies all tag colours to the graph.'],
-            ['Command palette', 'Regenerate all tag colours','Wipes and re-generates every unlocked colour from the current palette.'],
-            ['Command palette', 'Toggle tag colour legend',  'Shows or hides the floating tag-colour legend on the Graph View.'],
-            ['Command palette', 'Debug: log graph info',     'Prints internal graph state to the DevTools console (for troubleshooting).'],
-        ];
-
-        for (const [key, name, desc] of rows) {
-            const row = table.createDiv({ cls: 'atgc-cmd-row' });
-            row.createSpan({ cls: 'atgc-cmd-key',  text: key });
-            const info = row.createDiv({ cls: 'atgc-cmd-info' });
-            info.createDiv({ cls: 'atgc-cmd-name', text: name });
-            info.createDiv({ cls: 'atgc-cmd-desc', text: desc });
-        }
-
-        el.createEl('p', {
-            cls:  'atgc-cmd-note',
-            text: 'You can remap any shortcut in Settings → Hotkeys (search for "Auto Tag Graph Colors").',
+            text: 'Automatically assign distinct, stable colors to every tag in your vault and paint them onto the graph view.',
         });
     }
 
@@ -95,29 +55,8 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
     private renderFooter(el: HTMLElement): void {
         const footer = el.createDiv({ cls: 'atgc-footer' });
-        footer.createEl('hr');
-
-        // Meetzy promo card
-        const card = footer.createDiv({ cls: 'atgc-promo-card' });
-        card.createEl('div', { cls: 'atgc-promo-eyebrow', text: 'Built by Meetzy' });
-        card.createEl('div', {
-            cls:  'atgc-promo-title',
-            text: 'Turn leads into clients. Powered by AI.',
-        });
-        card.createEl('p', {
-            cls:  'atgc-promo-desc',
-            text: 'Marketing OS · Sales OS & CRM · AI Content Studio · Workflow Automation · John, your autonomous AI sales employee. One clear flow from first touch to closed deal. Save up to 92% vs. traditional stacks. From €29/month.',
-        });
-        const cta = card.createEl('a', {
-            text: 'Discover Meetzy →',
-            cls:  'atgc-promo-cta',
-            href: 'https://meetzy.ai',
-        });
-        cta.setAttr('target', '_blank');
-        cta.setAttr('rel',    'noopener');
-
         const line = footer.createEl('p', { cls: 'atgc-footer-line' });
-        line.createSpan({ text: 'Auto Tag Graph Colors · A side project by ' });
+        line.createSpan({ text: 'A side project by ' });
         const brand = line.createEl('a', {
             text: 'Meetzy Corp FZCO',
             cls:  'atgc-brand',
@@ -125,17 +64,17 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         });
         brand.setAttr('target', '_blank');
         brand.setAttr('rel',    'noopener');
-        line.createSpan({ text: ' · Made with ❤️ in Dubai.' });
+        line.createSpan({ text: '.' });
     }
 
     // ── General ───────────────────────────────────────────────
 
     private renderGeneral(el: HTMLElement): void {
-        el.createEl('h3', { text: 'General' });
+        new Setting(el).setName('General').setHeading();
 
         new Setting(el)
             .setName('Enable plugin')
-            .setDesc('Toggle automatic tag coloring on or off. Turning it off removes every colour group this plugin created from the Graph View.')
+            .setDesc('Toggle automatic tag coloring on or off. Turning it off removes every color group this plugin created from the graph view.')
             .addToggle(t => t
                 .setValue(this.plugin.settings.enabled)
                 .onChange(async val => {
@@ -153,7 +92,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
         new Setting(el)
             .setName('Auto-refresh')
-            .setDesc('Re-scan and re-apply colours automatically when tags change.')
+            .setDesc('Re-scan and re-apply colors automatically when tags change.')
             .addToggle(t => t
                 .setValue(this.plugin.settings.autoRefresh)
                 .onChange(async val => {
@@ -165,48 +104,48 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
     // ── Scan actions ──────────────────────────────────────────
 
     private renderScan(el: HTMLElement): void {
-        el.createEl('h3', { text: 'Tag Scanning' });
+        new Setting(el).setName('Tag scanning').setHeading();
 
         new Setting(el)
             .setName('Scan vault now')
-            .setDesc('Immediately scan all notes and apply colours to the Graph View.')
+            .setDesc('Immediately scan all notes and apply colors to the graph view.')
             .addButton(b => b
                 .setButtonText('Scan vault now')
                 .setCta()
                 .onClick(async () => {
                     await this.plugin.fullScanAndApply();
-                    new Notice('ATGC: Vault scanned and colours applied.');
+                    new Notice('ATGC: Vault scanned and colors applied.');
                     this.display();
                 }));
 
         new Setting(el)
-            .setName('Regenerate all colours')
-            .setDesc('Re-generate colours for all unlocked tags (locked colours are preserved).')
+            .setName('Regenerate all colors')
+            .setDesc('Re-generate colors for all unlocked tags (locked colors are preserved).')
             .addButton(b => b
-                .setButtonText('Regenerate all colours')
+                .setButtonText('Regenerate all colors')
                 .onClick(async () => {
                     await this.plugin.regenerateAllColors();
                     this.display();
                 }));
 
         new Setting(el)
-            .setName('Reset all colours')
-            .setDesc('Delete every saved colour and start from scratch.')
+            .setName('Reset all colors')
+            .setDesc('Delete every saved color and start from scratch.')
             .addButton(b => b
-                .setButtonText('Reset all colours')
+                .setButtonText('Reset all colors')
                 .setWarning()
                 .onClick(async () => {
                     this.plugin.settings.tagColors   = {};
                     this.plugin.settings.lockedColors = {};
                     await this.plugin.saveSettings();
                     await this.plugin.fullScanAndApply();
-                    new Notice('ATGC: All colours reset.');
+                    new Notice('ATGC: All colors reset.');
                     this.display();
                 }));
 
         new Setting(el)
             .setName('Ignore single-use tags')
-            .setDesc('Do not assign a colour to tags that appear in only one note.')
+            .setDesc('Do not assign a color to tags that appear in only one note.')
             .addToggle(t => t
                 .setValue(this.plugin.settings.ignoreSingleUseTags)
                 .onChange(async val => {
@@ -217,7 +156,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
         new Setting(el)
             .setName('Excluded tags')
-            .setDesc('Comma-separated tags to never colour, e.g. #daily, #template')
+            .setDesc('Comma-separated tags to never color, e.g. #daily, #template')
             .addText(t => t
                 .setPlaceholder('#daily, #template, #archived')
                 .setValue(this.plugin.settings.excludedTags.join(', '))
@@ -235,11 +174,11 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
     // ── Colour generation settings ────────────────────────────
 
     private renderColors(el: HTMLElement): void {
-        el.createEl('h3', { text: 'Colour Generation' });
+        new Setting(el).setName('Color generation').setHeading();
 
         new Setting(el)
-            .setName('Colour palette')
-            .setDesc('Choose the source palette for tag colour assignment.')
+            .setName('Color palette')
+            .setDesc('Choose the source palette for tag color assignment.')
             .addDropdown(d => d
                 .addOption('modern',        'Modern')
                 .addOption('pastel',        'Pastel')
@@ -258,7 +197,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         if (this.plugin.settings.palette === 'hsl') {
             new Setting(el)
                 .setName('Saturation')
-                .setDesc('Colour saturation for the HSL palette (0 = grey, 100 = vivid).')
+                .setDesc('Color saturation for the HSL palette (0 = grey, 100 = vivid).')
                 .addSlider(s => s
                     .setLimits(0, 100, 5)
                     .setValue(this.plugin.settings.saturation)
@@ -272,7 +211,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
             new Setting(el)
                 .setName('Lightness')
-                .setDesc('Colour lightness for the HSL palette (0 = black, 100 = white).')
+                .setDesc('Color lightness for the HSL palette (0 = black, 100 = white).')
                 .addSlider(s => s
                     .setLimits(0, 100, 5)
                     .setValue(this.plugin.settings.lightness)
@@ -286,12 +225,12 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         }
 
         new Setting(el)
-            .setName('Colour mode')
+            .setName('Color mode')
             .setDesc('Determines which tag wins when a note has multiple tags.')
             .addDropdown(d => d
                 .addOption('primary',  'Primary tag — first tag in the note wins')
                 .addOption('priority', 'Priority tag — user-defined priority order')
-                .addOption('multi',    'Multi-tag — falls back to primary (Graph View limitation)')
+                .addOption('multi',    'Multi-tag — falls back to primary (graph view limitation)')
                 .setValue(this.plugin.settings.colorMode)
                 .onChange(async val => {
                     this.plugin.settings.colorMode = val as ColorMode;
@@ -303,7 +242,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         if (this.plugin.settings.colorMode === 'priority') {
             new Setting(el)
                 .setName('Priority tag order')
-                .setDesc('Comma-separated tags, highest priority first.  The colour of the first matching tag is used.')
+                .setDesc('Comma-separated tags, highest priority first.  The color of the first matching tag is used.')
                 .addTextArea(ta => {
                     ta.setPlaceholder('#project, #client, #meeting')
                       .setValue(this.plugin.settings.priorityTags.join(', '));
@@ -322,10 +261,10 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
         new Setting(el)
             .setName('Subtag mode')
-            .setDesc('How to colour hierarchical tags like #project/alpha.')
+            .setDesc('How to color hierarchical tags like #project/alpha.')
             .addDropdown(d => d
-                .addOption('separate', 'Separate — each subtag gets its own colour')
-                .addOption('inherit',  'Parent inheritance — subtags inherit parent colour with lightness variation')
+                .addOption('separate', 'Separate — each subtag gets its own color')
+                .addOption('inherit',  'Parent inheritance — subtags inherit parent color with lightness variation')
                 .setValue(this.plugin.settings.subtagMode)
                 .onChange(async val => {
                     this.plugin.settings.subtagMode = val as SubtagMode;
@@ -334,11 +273,11 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 }));
 
         // ── Smart tag blending ─────────────────────────────────
-        el.createEl('h3', { text: 'Smart Tag Blending' });
+        new Setting(el).setName('Smart tag blending').setHeading();
 
         new Setting(el)
             .setName('Enable smart blending')
-            .setDesc('Each note gets its own colour blended from all its tags: primary tag colour, subtly shifted toward secondary tags, with fine lightness variation per unique tag combo. Notes with identical tag sets get identical colours.')
+            .setDesc('Each note gets its own color blended from all its tags: primary tag color, subtly shifted toward secondary tags, with fine lightness variation per unique tag combo. Notes with identical tag sets get identical colors.')
             .addToggle(t => t
                 .setValue(this.plugin.settings.blendTagsEnabled)
                 .onChange(async val => {
@@ -351,7 +290,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         if (this.plugin.settings.blendTagsEnabled) {
             new Setting(el)
                 .setName('Monochrome mode')
-                .setDesc('Force every note to a shade of a single chosen colour. Different tag combos still get distinct lightness/saturation variations, but the hue stays fixed.')
+                .setDesc('Force every note to a shade of a single chosen color. Different tag combos still get distinct lightness/saturation variations, but the hue stays fixed.')
                 .addToggle(t => t
                     .setValue(this.plugin.settings.blendMonochromeEnabled)
                     .onChange(async val => {
@@ -361,13 +300,13 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                     }));
 
             new Setting(el)
-                .setName('Monochrome base colour')
+                .setName('Monochrome base color')
                 .setDesc('Base hue used when monochrome mode is on.')
                 .then(s => {
                     const input = s.controlEl.createEl('input') as HTMLInputElement;
                     input.type  = 'color';
                     input.value = this.plugin.settings.blendMonochromeHue;
-                    input.style.cssText = 'width:40px;height:28px;padding:0;border:1px solid var(--background-modifier-border);border-radius:4px;cursor:pointer;';
+                    input.addClass('atgc-color-swatch');
                     input.addEventListener('input', async () => {
                         this.plugin.settings.blendMonochromeHue = input.value;
                         await this.plugin.saveSettings();
@@ -379,7 +318,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
         }
 
         // ── Heat coloring ──────────────────────────────────────
-        el.createEl('h3', { text: 'Heat Coloring by Connections' });
+        new Setting(el).setName('Heat coloring by connections').setHeading();
 
         new Setting(el)
             .setName('Enable heat coloring')
@@ -395,13 +334,13 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
         if (this.plugin.settings.heatColoringEnabled) {
             new Setting(el)
-                .setName('Cold colour')
-                .setDesc('Colour for nodes with the fewest connections.')
+                .setName('Cold color')
+                .setDesc('Color for nodes with the fewest connections.')
                 .then(s => {
                     const input = s.controlEl.createEl('input') as HTMLInputElement;
                     input.type  = 'color';
                     input.value = this.plugin.settings.heatColdColor;
-                    input.style.cssText = 'width:40px;height:28px;padding:0;border:1px solid var(--background-modifier-border);border-radius:4px;cursor:pointer;';
+                    input.addClass('atgc-color-swatch');
                     input.addEventListener('input', async () => {
                         this.plugin.settings.heatColdColor = input.value;
                         await this.plugin.saveSettings();
@@ -410,13 +349,13 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 });
 
             new Setting(el)
-                .setName('Hot colour')
-                .setDesc('Colour for nodes with the most connections.')
+                .setName('Hot color')
+                .setDesc('Color for nodes with the most connections.')
                 .then(s => {
                     const input = s.controlEl.createEl('input') as HTMLInputElement;
                     input.type  = 'color';
                     input.value = this.plugin.settings.heatHotColor;
-                    input.style.cssText = 'width:40px;height:28px;padding:0;border:1px solid var(--background-modifier-border);border-radius:4px;cursor:pointer;';
+                    input.addClass('atgc-color-swatch');
                     input.addEventListener('input', async () => {
                         this.plugin.settings.heatHotColor = input.value;
                         await this.plugin.saveSettings();
@@ -429,11 +368,11 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
     // ── Display ───────────────────────────────────────────────
 
     private renderDisplay(el: HTMLElement): void {
-        el.createEl('h3', { text: 'Display' });
+        new Setting(el).setName('Display').setHeading();
 
         new Setting(el)
-            .setName('Show legend in Graph View')
-            .setDesc('Overlay a colour legend on every Graph View pane.')
+            .setName('Show legend in graph view')
+            .setDesc('Overlay a color legend on every graph view pane.')
             .addToggle(t => t
                 .setValue(this.plugin.settings.showLegend)
                 .onChange(async val => {
@@ -457,7 +396,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
     // ── Per-tag colour list ───────────────────────────────────
 
     private renderTagList(el: HTMLElement): void {
-        el.createEl('h3', { text: 'Tag Colours' });
+        new Setting(el).setName('Tag colors').setHeading();
 
         const lastScan = this.plugin.settings.lastScanTime;
         if (lastScan > 0) {
@@ -529,7 +468,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
             });
 
             // Native colour picker — shows the on-graph colour (mode-aware).
-            // Editing it updates the tag's base colour; the preview + graph
+            // Editing it updates the tag's base color; the preview + graph
             // then reflect the new value through the current mode.
             const picker = row.createEl('input', { cls: 'atgc-color-picker' }) as HTMLInputElement;
             picker.type  = 'color';
@@ -563,7 +502,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
             // Reset single tag
             const resetBtn = row.createEl('button', { cls: 'atgc-reset-btn' });
             resetBtn.textContent = '↺';
-            resetBtn.title       = "Reset this tag\u2019s colour";
+            resetBtn.title       = "Reset this tag\u2019s color";
             resetBtn.addEventListener('click', async () => {
                 delete this.plugin.settings.tagColors[tag];
                 delete this.plugin.settings.lockedColors[tag];
