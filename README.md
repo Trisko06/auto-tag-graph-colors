@@ -118,7 +118,7 @@ Remap any shortcut in **Settings → Hotkeys** (search for *"Auto Tag Graph Colo
 ### From source
 
 ```bash
-git clone https://github.com/meetzy/auto-tag-graph-colors.git
+git clone https://github.com/Trisko06/auto-tag-graph-colors.git
 cd auto-tag-graph-colors
 npm install
 npm run build
