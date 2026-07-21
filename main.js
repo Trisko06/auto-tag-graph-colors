@@ -938,8 +938,19 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
     const header = el.createDiv({ cls: "atgc-header" });
     header.createEl("p", {
       cls: "atgc-subtitle",
-      text: "Automatically assign distinct, stable colors to every tag in your vault and paint them onto the graph view."
+      text: "Automatically assign distinct, stable colors to every tag in your vault and paint them onto the graph view. Pick a palette, hit scan, and your knowledge graph becomes a color-coded map of your thinking."
     });
+    const about = header.createDiv({ cls: "atgc-about" });
+    const aboutText = about.createEl("p", { cls: "atgc-about-text" });
+    aboutText.createSpan({ text: "A side project by " });
+    const brand = aboutText.createEl("a", {
+      text: "Meetzy",
+      cls: "atgc-brand",
+      href: "https://meetzy.ai"
+    });
+    brand.setAttr("target", "_blank");
+    brand.setAttr("rel", "noopener");
+    aboutText.createSpan({ text: " \u2014 an AI-native platform for marketing and sales teams." });
   }
   // ── Footer ────────────────────────────────────────────────
   renderFooter(el) {
