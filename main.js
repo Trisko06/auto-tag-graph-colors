@@ -1008,7 +1008,7 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
       await this.plugin.regenerateAllColors();
       this.display();
     }));
-    new import_obsidian2.Setting(el).setName("Reset all colors").setDesc("Delete every saved color and start from scratch.").addButton((b) => b.setButtonText("Reset all colors").setDestructive().onClick(async () => {
+    new import_obsidian2.Setting(el).setName("Reset all colors").setDesc("Delete every saved color and start from scratch.").addButton((b) => b.setButtonText("Reset all colors").setWarning().onClick(async () => {
       this.plugin.settings.tagColors = {};
       this.plugin.settings.lockedColors = {};
       await this.plugin.saveSettings();

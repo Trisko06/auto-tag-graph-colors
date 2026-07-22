@@ -147,7 +147,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
             .setDesc('Delete every saved color and start from scratch.')
             .addButton(b => b
                 .setButtonText('Reset all colors')
-                .setDestructive()
+                .setWarning()
                 .onClick(async () => {
                     this.plugin.settings.tagColors   = {};
                     this.plugin.settings.lockedColors = {};

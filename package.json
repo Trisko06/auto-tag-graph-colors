@@ -1,6 +1,6 @@
 {
   "name": "auto-tag-graph-colors",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Obsidian plugin \u2014 automatically assigns distinct, stable colors to every tag in the Graph View.",
   "main": "main.js",
   "scripts": {
