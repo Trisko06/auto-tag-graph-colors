@@ -280,8 +280,8 @@
     overflow: hidden;
 }
 
-.atgc-legend-panel-hidden {
-    display: none !important;
+.atgc-legend-wrapper .atgc-legend-panel.atgc-legend-panel-hidden {
+    display: none;
 }
 
 .atgc-legend-panel-header {
@@ -313,7 +313,6 @@
 .atgc-legend-panel-body {
     overflow-y: auto;
     padding: 4px 6px;
-    scrollbar-width: thin;
 }
 
 .atgc-legend-footer {

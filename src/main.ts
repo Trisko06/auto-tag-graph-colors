@@ -18,7 +18,7 @@ export default class AutoTagGraphColorsPlugin extends Plugin {
     colorManager!:     ColorManager;
     graphIntegration!: GraphIntegration;
 
-    private scanDebounce:    ReturnType<typeof setTimeout> | null = null;
+    private scanDebounce:    number | null = null;
     private readonly SCAN_DELAY = 2000; // ms
 
     // ── Plugin lifecycle ──────────────────────────────────────
@@ -51,19 +51,13 @@ export default class AutoTagGraphColorsPlugin extends Plugin {
             callback: () => { void this.toggleLegend(); },
         });
 
-        this.addCommand({
-            id:       'atgc-debug-info',
-            name:     'Log graph info to console',
-            callback: () => { this.graphIntegration.logDebugInfo(); },
-        });
-
         // Wait for workspace + cache to be ready before doing anything
-        this.app.workspace.onLayoutReady(() => void this.initialize());
+        this.app.workspace.onLayoutReady(() => { void this.initialize(); });
     }
 
     onunload(): void {
         if (this.scanDebounce) {
-            clearTimeout(this.scanDebounce);
+            window.clearTimeout(this.scanDebounce);
             this.scanDebounce = null;
         }
         // Remove every color-group this plugin created so the graph goes back
@@ -125,8 +119,8 @@ export default class AutoTagGraphColorsPlugin extends Plugin {
     // ── Debounced scan scheduling ─────────────────────────────
 
     private scheduleScan(): void {
-        if (this.scanDebounce) clearTimeout(this.scanDebounce);
-        this.scanDebounce = setTimeout(() => {
+        if (this.scanDebounce) window.clearTimeout(this.scanDebounce);
+        this.scanDebounce = window.setTimeout(() => {
             this.scanDebounce = null;
             void this.fullScanAndApply();
         }, this.SCAN_DELAY);

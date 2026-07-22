@@ -447,6 +447,16 @@ function interpolateColor(t, coldHex, hotHex) {
   const l = l1 + (l2 - l1) * t;
   return hslToHex2(h, s, l);
 }
+function getInternalPlugins(app) {
+  return app.internalPlugins;
+}
+function getGraphPlugin(app) {
+  var _a, _b;
+  return (_b = (_a = getInternalPlugins(app)) == null ? void 0 : _a.plugins) == null ? void 0 : _b["graph"];
+}
+function getConfigDir(app) {
+  return app.vault.configDir;
+}
 var GraphIntegration = class {
   constructor(app, settings) {
     this.legendByContainer = /* @__PURE__ */ new WeakMap();
@@ -504,34 +514,32 @@ var GraphIntegration = class {
    * from every open graph view. Leaves user-added groups untouched.
    */
   async clearManagedGroups(managedQueries) {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d;
     const managed = new Set(managedQueries);
     try {
-      const configDir = (_a = this.app.vault.configDir) != null ? _a : ".obsidian";
+      const configDir = getConfigDir(this.app);
       const graphPath = (0, import_obsidian.normalizePath)(`${configDir}/graph.json`);
       let current = {};
       try {
         current = JSON.parse(await this.app.vault.adapter.read(graphPath));
       } catch (e) {
       }
-      current.colorGroups = ((_b = current.colorGroups) != null ? _b : []).filter((g) => !managed.has(g.query));
+      current.colorGroups = ((_a = current.colorGroups) != null ? _a : []).filter((g) => !managed.has(g.query));
       await this.app.vault.adapter.write(graphPath, JSON.stringify(current, null, 2));
     } catch (e) {
-      console.debug("[ATGC] clearManagedGroups disk error:", e);
+      console.error("[ATGC] clearManagedGroups disk error:", e);
     }
     try {
-      const ip = this.app.internalPlugins;
-      const gp = (_c = ip == null ? void 0 : ip.plugins) == null ? void 0 : _c["graph"];
+      const gp = getGraphPlugin(this.app);
       const instance = gp == null ? void 0 : gp.instance;
-      if ((_d = instance == null ? void 0 : instance.options) == null ? void 0 : _d.colorGroups) {
+      if ((_b = instance == null ? void 0 : instance.options) == null ? void 0 : _b.colorGroups) {
         instance.options.colorGroups = instance.options.colorGroups.filter((g) => !managed.has(g.query));
-        const gpAny = gp;
-        if (typeof gpAny.saveData === "function") {
-          void gpAny.saveData(instance.options);
+        if (typeof (gp == null ? void 0 : gp.saveData) === "function") {
+          void gp.saveData(instance.options);
         }
       }
     } catch (e) {
-      console.debug("[ATGC] clearManagedGroups memory error:", e);
+      console.error("[ATGC] clearManagedGroups memory error:", e);
     }
     for (const leaf of this.app.workspace.getLeavesOfType("graph")) {
       try {
@@ -539,33 +547,18 @@ var GraphIntegration = class {
         const de = view.dataEngine;
         if (!de || typeof de.setOptions !== "function")
           continue;
-        const existing = (_f = (_e = de.options) == null ? void 0 : _e.colorGroups) != null ? _f : [];
+        const existing = (_d = (_c = de.options) == null ? void 0 : _c.colorGroups) != null ? _d : [];
         de.setOptions({ colorGroups: existing.filter((g) => !managed.has(g.query)) });
       } catch (e) {
-        console.debug("[ATGC] clearManagedGroups view error:", e);
+        console.error("[ATGC] clearManagedGroups view error:", e);
       }
     }
   }
   /** Log graph internals to the developer console for debugging. */
   logDebugInfo() {
-    var _a, _b, _c, _d;
-    const ip = this.app.internalPlugins;
-    const gp = (_a = ip == null ? void 0 : ip.plugins) == null ? void 0 : _a["graph"];
-    const inst = gp == null ? void 0 : gp.instance;
-    console.group("[ATGC] Debug");
-    console.log("graph plugin found:", !!gp);
-    console.log("instance found:", !!inst);
-    console.log("instance.options:", inst == null ? void 0 : inst.options);
-    console.log("colorGroups count:", (_d = (_c = (_b = inst == null ? void 0 : inst.options) == null ? void 0 : _b.colorGroups) == null ? void 0 : _c.length) != null ? _d : 0);
-    console.log("gp.saveData type:", typeof (gp == null ? void 0 : gp.saveData));
+    const gp = getGraphPlugin(this.app);
     const leaves = this.app.workspace.getLeavesOfType("graph");
-    console.log("open graph leaves:", leaves.length);
-    leaves.forEach((leaf, i) => {
-      const v = leaf.view;
-      const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(v)).filter((n) => typeof v[n] === "function" && n !== "constructor");
-      console.log(`leaf ${i} proto methods:`, methods.join(", "));
-    });
-    console.groupEnd();
+    console.info("[ATGC] graph plugin present:", !!gp, "| open graph leaves:", leaves.length);
   }
   // ── Tag colour groups ─────────────────────────────────────
   buildColorGroups(tagColors, priorityTags, colorMode) {
@@ -705,35 +698,33 @@ var GraphIntegration = class {
    *   - gp.saveData is the correct save method to check
    */
   updateInternalMemory(newGroups, managedQueries) {
-    var _a, _b;
+    var _a;
     try {
-      const ip = this.app.internalPlugins;
-      const gp = (_a = ip == null ? void 0 : ip.plugins) == null ? void 0 : _a["graph"];
+      const gp = getGraphPlugin(this.app);
       const instance = gp == null ? void 0 : gp.instance;
       if (!(instance == null ? void 0 : instance.options)) {
         return false;
       }
       const prev = new Set(managedQueries);
       const inc = new Set(newGroups.map((g) => g.query));
-      const existing = (_b = instance.options.colorGroups) != null ? _b : [];
+      const existing = (_a = instance.options.colorGroups) != null ? _a : [];
       const preserved = existing.filter((g) => !prev.has(g.query) && !inc.has(g.query));
       instance.options.colorGroups = [...preserved, ...newGroups];
-      const gpAny = gp;
-      if (typeof gpAny.saveData === "function") {
-        void gpAny.saveData(instance.options);
+      if (typeof (gp == null ? void 0 : gp.saveData) === "function") {
+        void gp.saveData(instance.options);
         return true;
       }
       return false;
     } catch (e) {
-      console.debug("[ATGC] updateInternalMemory error:", e);
+      console.error("[ATGC] updateInternalMemory error:", e);
       return false;
     }
   }
   // ── graph.json file-system fallback ──────────────────────
   async writeGraphJson(newGroups, managedQueries) {
-    var _a, _b;
+    var _a;
     try {
-      const configDir = (_a = this.app.vault.configDir) != null ? _a : ".obsidian";
+      const configDir = getConfigDir(this.app);
       const graphPath = (0, import_obsidian.normalizePath)(`${configDir}/graph.json`);
       const prev = new Set(managedQueries);
       const inc = new Set(newGroups.map((g) => g.query));
@@ -742,7 +733,7 @@ var GraphIntegration = class {
         current = JSON.parse(await this.app.vault.adapter.read(graphPath));
       } catch (e) {
       }
-      const existing = (_b = current.colorGroups) != null ? _b : [];
+      const existing = (_a = current.colorGroups) != null ? _a : [];
       current.colorGroups = [
         ...existing.filter((g) => !prev.has(g.query) && !inc.has(g.query)),
         ...newGroups
@@ -776,7 +767,7 @@ var GraphIntegration = class {
         const preserved = existing.filter((g) => !prev.has(g.query) && !inc.has(g.query));
         de.setOptions({ colorGroups: [...preserved, ...newGroups] });
       } catch (e) {
-        console.debug("[ATGC] applyToDataEngines error:", e);
+        console.error("[ATGC] applyToDataEngines error:", e);
       }
     }
   }
@@ -793,7 +784,7 @@ var GraphIntegration = class {
           view.onOptionsChange();
         }
       } catch (e) {
-        console.debug("[ATGC] callOnOptionsChange error:", e);
+        console.error("[ATGC] callOnOptionsChange error:", e);
       }
     }
   }
@@ -818,15 +809,34 @@ var GraphIntegration = class {
     this.allLegends.clear();
   }
   buildLegend(tagColors, tagCounts, onColorChange, onToggle) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "atgc-legend-wrapper";
+    const wrapper = createDiv({ cls: "atgc-legend-wrapper" });
     const tagCount = Object.keys(tagColors).length;
     const toggleBtn = wrapper.createDiv({ cls: "atgc-legend-toggle-btn" });
-    toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg><span>${tagCount}</span>`;
-    toggleBtn.title = "Tag Colours";
+    const svgNs = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNs, "svg");
+    svg.setAttribute("width", "13");
+    svg.setAttribute("height", "13");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2.5");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    const path = document.createElementNS(svgNs, "path");
+    path.setAttribute("d", "M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z");
+    svg.appendChild(path);
+    const circle = document.createElementNS(svgNs, "circle");
+    circle.setAttribute("cx", "7");
+    circle.setAttribute("cy", "7");
+    circle.setAttribute("r", "1");
+    circle.setAttribute("fill", "currentColor");
+    svg.appendChild(circle);
+    toggleBtn.appendChild(svg);
+    toggleBtn.createSpan({ text: String(tagCount) });
+    toggleBtn.setAttr("aria-label", "Tag colors");
     const panel = wrapper.createDiv({ cls: "atgc-legend-panel atgc-legend-panel-hidden" });
     const header = panel.createDiv({ cls: "atgc-legend-panel-header" });
-    header.createSpan({ text: "Tag Colours" });
+    header.createSpan({ text: "Tag colors" });
     const closeBtn = header.createEl("button", { cls: "atgc-legend-close-btn", text: "\xD7" });
     const body = panel.createDiv({ cls: "atgc-legend-panel-body" });
     const sorted = Object.entries(tagColors).map(([tag, color]) => {
@@ -907,17 +917,17 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
   }
   /** Debounced full rescan + apply — for text inputs typed by the user. */
   scheduleRescan(delay = 400) {
-    if (this.applyTimer)
-      clearTimeout(this.applyTimer);
-    this.applyTimer = setTimeout(() => {
+    if (this.applyTimer !== null)
+      window.clearTimeout(this.applyTimer);
+    this.applyTimer = window.setTimeout(() => {
       void this.plugin.fullScanAndApply();
     }, delay);
   }
-  /** Debounced re-apply of current colours (no rescan). */
+  /** Debounced re-apply of current colors (no rescan). */
   scheduleApply(delay = 200) {
-    if (this.applyTimer)
-      clearTimeout(this.applyTimer);
-    this.applyTimer = setTimeout(() => {
+    if (this.applyTimer !== null)
+      window.clearTimeout(this.applyTimer);
+    this.applyTimer = window.setTimeout(() => {
       void this.plugin.applyCurrentColors();
     }, delay);
   }
@@ -968,7 +978,6 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
   }
   // ── General ───────────────────────────────────────────────
   renderGeneral(el) {
-    new import_obsidian2.Setting(el).setName("General").setHeading();
     new import_obsidian2.Setting(el).setName("Enable plugin").setDesc("Toggle automatic tag coloring on or off. Turning it off removes every color group this plugin created from the graph view.").addToggle((t) => t.setValue(this.plugin.settings.enabled).onChange(async (val) => {
       var _a;
       this.plugin.settings.enabled = val;
@@ -992,19 +1001,19 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
     new import_obsidian2.Setting(el).setName("Tag scanning").setHeading();
     new import_obsidian2.Setting(el).setName("Scan vault now").setDesc("Immediately scan all notes and apply colors to the graph view.").addButton((b) => b.setButtonText("Scan vault now").setCta().onClick(async () => {
       await this.plugin.fullScanAndApply();
-      new import_obsidian2.Notice("ATGC: Vault scanned and colors applied.");
+      new import_obsidian2.Notice("Auto Tag Graph Colors: vault scanned and colors applied.");
       this.display();
     }));
     new import_obsidian2.Setting(el).setName("Regenerate all colors").setDesc("Re-generate colors for all unlocked tags (locked colors are preserved).").addButton((b) => b.setButtonText("Regenerate all colors").onClick(async () => {
       await this.plugin.regenerateAllColors();
       this.display();
     }));
-    new import_obsidian2.Setting(el).setName("Reset all colors").setDesc("Delete every saved color and start from scratch.").addButton((b) => b.setButtonText("Reset all colors").setWarning().onClick(async () => {
+    new import_obsidian2.Setting(el).setName("Reset all colors").setDesc("Delete every saved color and start from scratch.").addButton((b) => b.setButtonText("Reset all colors").setDestructive().onClick(async () => {
       this.plugin.settings.tagColors = {};
       this.plugin.settings.lockedColors = {};
       await this.plugin.saveSettings();
       await this.plugin.fullScanAndApply();
-      new import_obsidian2.Notice("ATGC: All colors reset.");
+      new import_obsidian2.Notice("Auto Tag Graph Colors: all colors reset.");
       this.display();
     }));
     new import_obsidian2.Setting(el).setName("Ignore single-use tags").setDesc("Do not assign a color to tags that appear in only one note.").addToggle((t) => t.setValue(this.plugin.settings.ignoreSingleUseTags).onChange(async (val) => {
@@ -1028,21 +1037,21 @@ var AutoTagGraphSettingTab = class extends import_obsidian2.PluginSettingTab {
       this.display();
     }));
     if (this.plugin.settings.palette === "hsl") {
-      new import_obsidian2.Setting(el).setName("Saturation").setDesc("Color saturation for the HSL palette (0 = grey, 100 = vivid).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.saturation).setDynamicTooltip().onChange(async (val) => {
+      new import_obsidian2.Setting(el).setName("Saturation").setDesc("Color saturation for the HSL palette (0 = grey, 100 = vivid).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.saturation).onChange(async (val) => {
         this.plugin.settings.saturation = val;
         await this.plugin.saveSettings();
-        if (this.applyTimer)
-          clearTimeout(this.applyTimer);
-        this.applyTimer = setTimeout(() => {
+        if (this.applyTimer !== null)
+          window.clearTimeout(this.applyTimer);
+        this.applyTimer = window.setTimeout(() => {
           void this.plugin.regenerateAllColors();
         }, 200);
       }));
-      new import_obsidian2.Setting(el).setName("Lightness").setDesc("Color lightness for the HSL palette (0 = black, 100 = white).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.lightness).setDynamicTooltip().onChange(async (val) => {
+      new import_obsidian2.Setting(el).setName("Lightness").setDesc("Color lightness for the HSL palette (0 = black, 100 = white).").addSlider((s) => s.setLimits(0, 100, 5).setValue(this.plugin.settings.lightness).onChange(async (val) => {
         this.plugin.settings.lightness = val;
         await this.plugin.saveSettings();
-        if (this.applyTimer)
-          clearTimeout(this.applyTimer);
-        this.applyTimer = setTimeout(() => {
+        if (this.applyTimer !== null)
+          window.clearTimeout(this.applyTimer);
+        this.applyTimer = window.setTimeout(() => {
           void this.plugin.regenerateAllColors();
         }, 200);
       }));
@@ -1271,19 +1280,14 @@ var AutoTagGraphColorsPlugin = class extends import_obsidian3.Plugin {
         void this.toggleLegend();
       }
     });
-    this.addCommand({
-      id: "atgc-debug-info",
-      name: "Log graph info to console",
-      callback: () => {
-        this.graphIntegration.logDebugInfo();
-      }
+    this.app.workspace.onLayoutReady(() => {
+      void this.initialize();
     });
-    this.app.workspace.onLayoutReady(() => void this.initialize());
   }
   onunload() {
     var _a, _b, _c;
     if (this.scanDebounce) {
-      clearTimeout(this.scanDebounce);
+      window.clearTimeout(this.scanDebounce);
       this.scanDebounce = null;
     }
     void ((_b = this.graphIntegration) == null ? void 0 : _b.clearManagedGroups((_a = this.settings.managedQueries) != null ? _a : []));
@@ -1326,8 +1330,8 @@ var AutoTagGraphColorsPlugin = class extends import_obsidian3.Plugin {
   // ── Debounced scan scheduling ─────────────────────────────
   scheduleScan() {
     if (this.scanDebounce)
-      clearTimeout(this.scanDebounce);
-    this.scanDebounce = setTimeout(() => {
+      window.clearTimeout(this.scanDebounce);
+    this.scanDebounce = window.setTimeout(() => {
       this.scanDebounce = null;
       void this.fullScanAndApply();
     }, this.SCAN_DELAY);

@@ -38,7 +38,7 @@ export class TagScanner {
         const tags = new Set<string>();
 
         // ── Frontmatter: `tags` (array or comma-string) ──────
-        const fmTags = cache.frontmatter?.['tags'];
+        const fmTags: unknown = cache.frontmatter?.['tags'];
         if (Array.isArray(fmTags)) {
             for (const t of fmTags) {
                 if (typeof t === 'string' && t.trim()) {
@@ -52,7 +52,7 @@ export class TagScanner {
         }
 
         // ── Frontmatter: `tag` (singular) ────────────────────
-        const fmTag = cache.frontmatter?.['tag'];
+        const fmTag: unknown = cache.frontmatter?.['tag'];
         if (typeof fmTag === 'string' && fmTag.trim()) {
             tags.add(this.normalise(fmTag.trim()));
         }

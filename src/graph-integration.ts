@@ -91,7 +91,7 @@ function interpolateColor(t: number, coldHex: string, hotHex: string): string {
     return hslToHex(h, s, l);
 }
 
-export type ColorChangeCallback = (tag: string, newColor: string) => void;
+export type ColorChangeCallback = (tag: string, newColor: string) => void | Promise<void>;
 
 // ── Internal plugin type stubs ────────────────────────────────
 
@@ -100,9 +100,32 @@ interface InternalGraphInstance {
 }
 interface InternalGraphPlugin {
     instance?: InternalGraphInstance;
+    saveData?: (options: unknown) => Promise<void> | void;
 }
 interface InternalPlugins {
     plugins?: Record<string, InternalGraphPlugin>;
+}
+interface GraphDataEngine {
+    setOptions(opts: { colorGroups: GraphColorGroup[] }): void;
+    options?: { colorGroups?: GraphColorGroup[] };
+}
+interface GraphViewLike {
+    dataEngine?: GraphDataEngine;
+    onOptionsChange?: () => void;
+    containerEl: HTMLElement;
+}
+interface VaultWithConfigDir {
+    configDir: string;
+}
+
+function getInternalPlugins(app: App): InternalPlugins | undefined {
+    return (app as unknown as { internalPlugins?: InternalPlugins }).internalPlugins;
+}
+function getGraphPlugin(app: App): InternalGraphPlugin | undefined {
+    return getInternalPlugins(app)?.plugins?.['graph'];
+}
+function getConfigDir(app: App): string {
+    return (app.vault as unknown as VaultWithConfigDir).configDir;
 }
 
 // ── Main class ────────────────────────────────────────────────
@@ -201,8 +224,7 @@ export class GraphIntegration {
 
         // 1) graph.json on disk
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const configDir = ((this.app.vault as any).configDir as string | undefined) ?? '.obsidian';
+            const configDir = getConfigDir(this.app);
             const graphPath = normalizePath(`${configDir}/graph.json`);
             let current: { colorGroups?: GraphColorGroup[] } = {};
             try {
@@ -211,63 +233,43 @@ export class GraphIntegration {
             current.colorGroups = (current.colorGroups ?? []).filter(g => !managed.has(g.query));
             await this.app.vault.adapter.write(graphPath, JSON.stringify(current, null, 2));
         } catch (e) {
-            console.debug('[ATGC] clearManagedGroups disk error:', e);
+            console.error('[ATGC] clearManagedGroups disk error:', e);
         }
 
         // 2) internal plugin memory
         try {
-            const ip       = (this.app as unknown as { internalPlugins?: InternalPlugins }).internalPlugins;
-            const gp       = ip?.plugins?.['graph'];
+            const gp       = getGraphPlugin(this.app);
             const instance = gp?.instance;
             if (instance?.options?.colorGroups) {
                 instance.options.colorGroups = instance.options.colorGroups.filter(g => !managed.has(g.query));
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const gpAny = gp as any;
-                if (typeof gpAny.saveData === 'function') {
-                    void (gpAny.saveData(instance.options) as unknown as Promise<void>);
+                if (typeof gp?.saveData === 'function') {
+                    void gp.saveData(instance.options);
                 }
             }
         } catch (e) {
-            console.debug('[ATGC] clearManagedGroups memory error:', e);
+            console.error('[ATGC] clearManagedGroups memory error:', e);
         }
 
         // 3) live open graph views
         for (const leaf of this.app.workspace.getLeavesOfType('graph')) {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const view = leaf.view as any;
+                const view = leaf.view as unknown as GraphViewLike;
                 const de   = view.dataEngine;
                 if (!de || typeof de.setOptions !== 'function') continue;
                 const existing: GraphColorGroup[] = de.options?.colorGroups ?? [];
                 de.setOptions({ colorGroups: existing.filter(g => !managed.has(g.query)) });
             } catch (e) {
-                console.debug('[ATGC] clearManagedGroups view error:', e);
+                console.error('[ATGC] clearManagedGroups view error:', e);
             }
         }
     }
 
     /** Log graph internals to the developer console for debugging. */
     logDebugInfo(): void {
-        const ip   = (this.app as unknown as { internalPlugins?: InternalPlugins }).internalPlugins;
-        const gp   = ip?.plugins?.['graph'];
-        const inst = gp?.instance;
-        console.group('[ATGC] Debug');
-        console.log('graph plugin found:', !!gp);
-        console.log('instance found:', !!inst);
-        console.log('instance.options:', inst?.options);
-        console.log('colorGroups count:', inst?.options?.colorGroups?.length ?? 0);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        console.log('gp.saveData type:', typeof (gp as any)?.saveData);
+        // Intentionally left minimal; deep debugging is available via DevTools directly.
+        const gp = getGraphPlugin(this.app);
         const leaves = this.app.workspace.getLeavesOfType('graph');
-        console.log('open graph leaves:', leaves.length);
-        leaves.forEach((leaf, i) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const v = leaf.view as any;
-            const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(v))
-                .filter(n => typeof v[n] === 'function' && n !== 'constructor');
-            console.log(`leaf ${i} proto methods:`, methods.join(', '));
-        });
-        console.groupEnd();
+        console.info('[ATGC] graph plugin present:', !!gp, '| open graph leaves:', leaves.length);
     }
 
     // ── Tag colour groups ─────────────────────────────────────
@@ -446,8 +448,7 @@ export class GraphIntegration {
         managedQueries: string[],
     ): boolean {
         try {
-            const ip       = (this.app as unknown as { internalPlugins?: InternalPlugins }).internalPlugins;
-            const gp       = ip?.plugins?.['graph'];
+            const gp       = getGraphPlugin(this.app);
             const instance = gp?.instance;
             if (!instance?.options) {
                 return false;
@@ -459,16 +460,13 @@ export class GraphIntegration {
             const preserved = existing.filter(g => !prev.has(g.query) && !inc.has(g.query));
             instance.options.colorGroups = [...preserved, ...newGroups];
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const gpAny = gp as any;
-            if (typeof gpAny.saveData === 'function') {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                void (gpAny.saveData(instance.options) as unknown as Promise<void>);
+            if (typeof gp?.saveData === 'function') {
+                void gp.saveData(instance.options);
                 return true;
             }
             return false;
         } catch (e) {
-            console.debug('[ATGC] updateInternalMemory error:', e);
+            console.error('[ATGC] updateInternalMemory error:', e);
             return false;
         }
     }
@@ -480,8 +478,7 @@ export class GraphIntegration {
         managedQueries: string[],
     ): Promise<void> {
         try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const configDir = ((this.app.vault as any).configDir as string | undefined) ?? '.obsidian';
+            const configDir = getConfigDir(this.app);
             const graphPath = normalizePath(`${configDir}/graph.json`);
             const prev      = new Set(managedQueries);
             const inc       = new Set(newGroups.map(g => g.query));
@@ -521,8 +518,7 @@ export class GraphIntegration {
 
         for (const leaf of this.app.workspace.getLeavesOfType('graph')) {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const view = leaf.view as any;
+                const view = leaf.view as unknown as GraphViewLike;
                 const de   = view.dataEngine;
                 if (!de || typeof de.setOptions !== 'function') {
                     continue;
@@ -531,7 +527,7 @@ export class GraphIntegration {
                 const preserved = existing.filter(g => !prev.has(g.query) && !inc.has(g.query));
                 de.setOptions({ colorGroups: [...preserved, ...newGroups] });
             } catch (e) {
-                console.debug('[ATGC] applyToDataEngines error:', e);
+                console.error('[ATGC] applyToDataEngines error:', e);
             }
         }
     }
@@ -544,13 +540,12 @@ export class GraphIntegration {
     private callOnOptionsChange(): void {
         for (const leaf of this.app.workspace.getLeavesOfType('graph')) {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const view = leaf.view as any;
+                const view = leaf.view as unknown as GraphViewLike;
                 if (typeof view.onOptionsChange === 'function') {
                     view.onOptionsChange();
                 }
             } catch (e) {
-                console.debug('[ATGC] callOnOptionsChange error:', e);
+                console.error('[ATGC] callOnOptionsChange error:', e);
             }
         }
     }
@@ -562,7 +557,7 @@ export class GraphIntegration {
         tagColors:     Record<string, string>,
         tagCounts:     Map<string, number>,
         onColorChange: ColorChangeCallback,
-        onToggle:      (visible: boolean) => void,
+        onToggle:      (visible: boolean) => void | Promise<void>,
     ): void {
         const container = leaf.view.containerEl;
 
@@ -590,21 +585,40 @@ export class GraphIntegration {
         tagColors:     Record<string, string>,
         tagCounts:     Map<string, number>,
         onColorChange: ColorChangeCallback,
-        onToggle:      (visible: boolean) => void,
+        onToggle:      (visible: boolean) => void | Promise<void>,
     ): HTMLElement {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'atgc-legend-wrapper';
+        const wrapper = createDiv({ cls: 'atgc-legend-wrapper' });
 
         // Toggle button (always visible)
         const tagCount  = Object.keys(tagColors).length;
         const toggleBtn = wrapper.createDiv({ cls: 'atgc-legend-toggle-btn' });
-        toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg><span>${tagCount}</span>`;
-        toggleBtn.title = 'Tag Colours';
+        const svgNs = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNs, 'svg');
+        svg.setAttribute('width', '13');
+        svg.setAttribute('height', '13');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2.5');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        const path = document.createElementNS(svgNs, 'path');
+        path.setAttribute('d', 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z');
+        svg.appendChild(path);
+        const circle = document.createElementNS(svgNs, 'circle');
+        circle.setAttribute('cx', '7');
+        circle.setAttribute('cy', '7');
+        circle.setAttribute('r', '1');
+        circle.setAttribute('fill', 'currentColor');
+        svg.appendChild(circle);
+        toggleBtn.appendChild(svg);
+        toggleBtn.createSpan({ text: String(tagCount) });
+        toggleBtn.setAttr('aria-label', 'Tag colors');
 
         // Expandable panel
         const panel  = wrapper.createDiv({ cls: 'atgc-legend-panel atgc-legend-panel-hidden' });
         const header = panel.createDiv({ cls: 'atgc-legend-panel-header' });
-        header.createSpan({ text: 'Tag Colours' });
+        header.createSpan({ text: 'Tag colors' });
         const closeBtn = header.createEl('button', { cls: 'atgc-legend-close-btn', text: '\u00D7' });
         const body     = panel.createDiv({ cls: 'atgc-legend-panel-body' });
 
@@ -625,7 +639,7 @@ export class GraphIntegration {
             item.createSpan({ cls: 'atgc-legend-label', text: tag.replace(/^#/, '') });
             item.createSpan({ cls: 'atgc-legend-count', text: String(entry.count) });
 
-            const picker = item.createEl('input', { cls: 'atgc-legend-picker' }) as HTMLInputElement;
+            const picker = item.createEl('input', { cls: 'atgc-legend-picker' });
             picker.type  = 'color';
             picker.value = color;
             picker.title = `Change color for ${tag}`;

@@ -8,7 +8,7 @@ import type AutoTagGraphColorsPlugin from './main';
 
 export class AutoTagGraphSettingTab extends PluginSettingTab {
     plugin: AutoTagGraphColorsPlugin;
-    private applyTimer: ReturnType<typeof setTimeout> | null = null;
+    private applyTimer: number | null = null;
 
     constructor(app: App, plugin: AutoTagGraphColorsPlugin) {
         super(app, plugin);
@@ -17,14 +17,14 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
     /** Debounced full rescan + apply — for text inputs typed by the user. */
     private scheduleRescan(delay = 400): void {
-        if (this.applyTimer) clearTimeout(this.applyTimer);
-        this.applyTimer = setTimeout(() => { void this.plugin.fullScanAndApply(); }, delay);
+        if (this.applyTimer !== null) window.clearTimeout(this.applyTimer);
+        this.applyTimer = window.setTimeout(() => { void this.plugin.fullScanAndApply(); }, delay);
     }
 
-    /** Debounced re-apply of current colours (no rescan). */
+    /** Debounced re-apply of current colors (no rescan). */
     private scheduleApply(delay = 200): void {
-        if (this.applyTimer) clearTimeout(this.applyTimer);
-        this.applyTimer = setTimeout(() => { void this.plugin.applyCurrentColors(); }, delay);
+        if (this.applyTimer !== null) window.clearTimeout(this.applyTimer);
+        this.applyTimer = window.setTimeout(() => { void this.plugin.applyCurrentColors(); }, delay);
     }
 
     display(): void {
@@ -85,7 +85,6 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
     // ── General ───────────────────────────────────────────────
 
     private renderGeneral(el: HTMLElement): void {
-        new Setting(el).setName('General').setHeading();
 
         new Setting(el)
             .setName('Enable plugin')
@@ -129,7 +128,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 .setCta()
                 .onClick(async () => {
                     await this.plugin.fullScanAndApply();
-                    new Notice('ATGC: Vault scanned and colors applied.');
+                    new Notice('Auto Tag Graph Colors: vault scanned and colors applied.');
                     this.display();
                 }));
 
@@ -148,13 +147,13 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
             .setDesc('Delete every saved color and start from scratch.')
             .addButton(b => b
                 .setButtonText('Reset all colors')
-                .setWarning()
+                .setDestructive()
                 .onClick(async () => {
                     this.plugin.settings.tagColors   = {};
                     this.plugin.settings.lockedColors = {};
                     await this.plugin.saveSettings();
                     await this.plugin.fullScanAndApply();
-                    new Notice('ATGC: All colors reset.');
+                    new Notice('Auto Tag Graph Colors: all colors reset.');
                     this.display();
                 }));
 
@@ -216,12 +215,11 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 .addSlider(s => s
                     .setLimits(0, 100, 5)
                     .setValue(this.plugin.settings.saturation)
-                    .setDynamicTooltip()
                     .onChange(async val => {
                         this.plugin.settings.saturation = val;
                         await this.plugin.saveSettings();
-                        if (this.applyTimer) clearTimeout(this.applyTimer);
-                        this.applyTimer = setTimeout(() => { void this.plugin.regenerateAllColors(); }, 200);
+                        if (this.applyTimer !== null) window.clearTimeout(this.applyTimer);
+                        this.applyTimer = window.setTimeout(() => { void this.plugin.regenerateAllColors(); }, 200);
                     }));
 
             new Setting(el)
@@ -230,12 +228,11 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 .addSlider(s => s
                     .setLimits(0, 100, 5)
                     .setValue(this.plugin.settings.lightness)
-                    .setDynamicTooltip()
                     .onChange(async val => {
                         this.plugin.settings.lightness = val;
                         await this.plugin.saveSettings();
-                        if (this.applyTimer) clearTimeout(this.applyTimer);
-                        this.applyTimer = setTimeout(() => { void this.plugin.regenerateAllColors(); }, 200);
+                        if (this.applyTimer !== null) window.clearTimeout(this.applyTimer);
+                        this.applyTimer = window.setTimeout(() => { void this.plugin.regenerateAllColors(); }, 200);
                     }));
         }
 
@@ -318,7 +315,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 .setName('Monochrome base color')
                 .setDesc('Base hue used when monochrome mode is on.')
                 .then(s => {
-                    const input = s.controlEl.createEl('input') as HTMLInputElement;
+                    const input = s.controlEl.createEl('input');
                     input.type  = 'color';
                     input.value = this.plugin.settings.blendMonochromeHue;
                     input.addClass('atgc-color-swatch');
@@ -352,7 +349,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 .setName('Cold color')
                 .setDesc('Color for nodes with the fewest connections.')
                 .then(s => {
-                    const input = s.controlEl.createEl('input') as HTMLInputElement;
+                    const input = s.controlEl.createEl('input');
                     input.type  = 'color';
                     input.value = this.plugin.settings.heatColdColor;
                     input.addClass('atgc-color-swatch');
@@ -367,7 +364,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
                 .setName('Hot color')
                 .setDesc('Color for nodes with the most connections.')
                 .then(s => {
-                    const input = s.controlEl.createEl('input') as HTMLInputElement;
+                    const input = s.controlEl.createEl('input');
                     input.type  = 'color';
                     input.value = this.plugin.settings.heatHotColor;
                     input.addClass('atgc-color-swatch');
@@ -429,7 +426,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
 
         // Search field
         const searchWrap = el.createDiv({ cls: 'atgc-search-container' });
-        const searchEl   = searchWrap.createEl('input', { cls: 'atgc-search-input' }) as HTMLInputElement;
+        const searchEl   = searchWrap.createEl('input', { cls: 'atgc-search-input' });
         searchEl.type        = 'text';
         searchEl.placeholder = 'Search tags…';
 
@@ -485,7 +482,7 @@ export class AutoTagGraphSettingTab extends PluginSettingTab {
             // Native colour picker — shows the on-graph colour (mode-aware).
             // Editing it updates the tag's base color; the preview + graph
             // then reflect the new value through the current mode.
-            const picker = row.createEl('input', { cls: 'atgc-color-picker' }) as HTMLInputElement;
+            const picker = row.createEl('input', { cls: 'atgc-color-picker' });
             picker.type  = 'color';
             picker.value = displayColor;
             picker.addEventListener('input', async () => {
